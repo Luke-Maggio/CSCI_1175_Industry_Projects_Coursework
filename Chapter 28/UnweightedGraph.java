@@ -1,4 +1,4 @@
-package exercise28_05;
+//package exercise28_03;
 
 
 import java.util.*;
@@ -44,26 +44,87 @@ public class UnweightedGraph<V> implements Graph<V> {
 		createAdjacencyLists(edges, numberOfVertices);
 	}
 	
-	
-	// Returns the best path between two nodes
-	public List<Integer> getPath(int u, int v) {
-		SearchTree tree = this.bfs(u);
-		List<Integer> list = new LinkedList<>();
+	/*
+	 * Algorithm for Exercise 28-3
+	 * public SearchTree dfsNonRecurs(int v) {
+	 *   int[] parent = new int[vertices.size()];
+	 *   for (int i = 0; i < parent.length; i++)
+	 *       parent[i] = -1; // Initialize parent[i] to -1
+	 *   boolean[] isVisited = new boolean[vertices.size()];
+	 *   List<Integer> searchOrder = new ArrayList<>();
+	 *   Stack<Integer> stack = new Stack<>();
+	 *
+	 *	 push v to the stack
+	 *	 add v to search order
+	 *   mark v visited
+	 *
+	 *   while (the stack is not empty) {
+	 *     peek a vertex from the stack, call x
+	 *     if (neighbors list for x equals size 0) {
+	 *	       pop a vertex from the stack
+	 *     }
+	 *     else {
+	 *         for (int i = all the vertices in x's neighbor list) {
+	 *             grab Egde at index i, call e
+	 *             remove ending vertex from x's neighbor list
+	 *             
+	 *             if (ending vertex of e is not visited) {
+	 *                 mark parent of ending vertex as x
+	 *                 push ending vertex onto stack
+	 *                 mark ending vertex as visited
+	 *                 add ending vertex to search order
+	 *                 break;
+	 *             }
+	 *         }
+	 *     }
+	 *
+	 *   return new SearchTree(v, parent, searchOrder);
+	 * }
+	*/
+	public SearchTree dfsNonRecurs(int v) {
+		// Will store what vertex leads to it
+		int[] parent = new int[vertices.size()];
+		for (int i = 0; i < parent.length; i++)
+			parent[i] = -1; // Initialize parent[i] to -1
+		// Mark visited vertices
+		boolean[] isVisited = new boolean[vertices.size()];
+		// Finish dfs order
+		List<Integer> searchOrder = new ArrayList<>();
+		// Used to keep track of vertices left to track
+		Stack<Integer> stack = new Stack<>();
 		
-		int current = v;
-		while (tree.getParent(current) != -1) {
-			list.add(0, current);// add the current node to the list
-			current = tree.getParent(current);// reset current to the parent node
-		}
-		if (current == u) {//if statement checking if current is u or first node
-			list.add(0, current);// add that node
-			 return list;
-		}
-		else {
-		return null;
-		}
+		//push v to the stack
+		stack.push(v);
+	   //add v to search order
+		searchOrder.add(v);
+	    //mark v visited
+		isVisited[v] = true;
+
+	    while (!stack.isEmpty()) {
+	        int x = stack.peek();
+
+	        if (neighbors.get(x).size() == 0) {
+	           stack.pop();
+	           continue;
+	        }
+	        else {
+	            for (int i = neighbors.get(x).size() - 1; i >= 0; i--) {
+	                Edge e = neighbors.get(x).get(i);
+	                neighbors.get(x).remove(i);
+
+	                if (!isVisited[e.v]) {
+	                    parent[e.v] = x; //mark parent of ending vertex as x
+	                    stack.push(e.v); //ending vertex onto stack
+	                    isVisited[e.v] = true; //ending vertex as visited
+	                    searchOrder.add(e.v);
+	                    break;
+	                }
+	            }
+	        }
+	    }
+		
+		return new SearchTree(v, parent, searchOrder);
 	}
-	
 
 	/** Create adjacency lists for each vertex */
 	private void createAdjacencyLists(
@@ -299,18 +360,5 @@ public class UnweightedGraph<V> implements Graph<V> {
 			}
 			System.out.println();
 		}
-	}
-}
-class Edge {
-	int u;
-	int v;
-	
-	public Edge(int u, int v) {
-		this.u = u;
-		this.v = v;
-	}
-	
-	public boolean equals(Object o) {
-		return (u == ((Edge)o).u && v == ((Edge)o).v);
 	}
 }
